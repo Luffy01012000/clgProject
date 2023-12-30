@@ -1,0 +1,23 @@
+---
+- 
+  name: This will create k8s with kubeadm
+  hosts: DOcean_k8s_cluster
+  become: true
+  # gather_facts: false
+  tasks:
+    - name: Copy shell script form local to remote 
+      ansible.builtin.copy:
+        src: ./kubeadm.sh
+        dest: /root
+        owner: root
+        group: root
+        # mode: '0644' # 6- read& write, 4- readonly for u-g-o 
+        mode: u+rwx,g-wx,o-rwx
+
+    - name: Run shell script
+      command: bash /root/kubeadm.sh 
+    
+    # - name: Run a script only if file.txt exists on the remote node
+    #   script: /root/kubeadm.sh
+    #   args:
+    #     removes: kubeadm.sh

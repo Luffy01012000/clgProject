@@ -1,0 +1,217 @@
+generator client {
+  provider = "prisma-client-js"
+  // binaryTargets = ["native", "debian-openssl-3.0.x"]
+  // need above line when using node:20-slim which is bookworm version of debian ditro 
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model admins {
+  id       Int       @id @default(autoincrement())
+  name     String    @db.Text
+  email    String    @db.Text
+  password String    @db.Text
+  Contact  Int?
+  DOB      DateTime? @db.Date
+}
+
+model categories {
+  id               Int                @id @default(autoincrement())
+  name             String             @db.Text
+  movie_categories movie_categories[]
+}
+
+model celebrities {
+  id          Int          @id @default(autoincrement())
+  name        String?      @db.Text
+  picture     String?      @db.Text
+  description String?      @db.Text
+  height      String?      @db.Text
+  weight      String?      @db.Text
+  eye_color   String?      @db.Text
+  hair_color  String?      @db.Text
+  birthday    DateTime?    @db.Date
+  facebook    String?      @db.Text
+  twitter     String?      @db.Text
+  youtube     String?      @db.Text
+  movie_cast  movie_cast[]
+}
+
+model cinemas {
+  id            Int             @id @default(autoincrement())
+  name          String          @db.Text
+  Address       String          @db.VarChar(150)
+  Contact       Int
+  email         String          @db.VarChar(30)
+  booking       booking[]
+  canteen       canteen[]
+  movie_cinemas movie_cinemas[]
+}
+
+model movie_cast {
+  id          Int         @id @default(autoincrement())
+  movie_id    Int
+  cast_id     Int
+  celebrities celebrities @relation(fields: [cast_id], references: [id], onDelete: Cascade, map: "movie_cast_cast_id")
+  movies      movies      @relation(fields: [movie_id], references: [id], onDelete: Cascade, map: "movie_cast_movie_id")
+
+  @@index([cast_id], map: "movie_cast_cast_id")
+  @@index([movie_id], map: "movie_cast_movie_id")
+}
+
+model movie_categories {
+  id          Int        @id @default(autoincrement())
+  movie_id    Int
+  category_id Int
+  categories  categories @relation(fields: [category_id], references: [id], onDelete: Cascade, map: "fk_movie_categories_category_id")
+  movies      movies     @relation(fields: [movie_id], references: [id], onDelete: Cascade, map: "fk_movie_categories_movie_id")
+
+  @@index([category_id], map: "fk_movie_categories_category_id")
+  @@index([movie_id], map: "fk_movie_categories_movie_id")
+}
+
+model cinemas_time {
+  id            Int             @id @default(autoincrement())
+  time          DateTime        @db.Time(0)
+  date          DateTime        @db.Date
+  dateTime      DateTime        @db.DateTime(0)
+  dateTimes     String          @db.Text
+  movie_cinemas movie_cinemas[]
+}
+
+model movie_cinemas {
+  id         Int          @id @default(autoincrement())
+  movie_id   Int
+  cinema_id  Int
+  movie_time DateTime     @db.DateTime(0)
+  CT_id      Int
+  SID        Int
+  booking    booking[]
+  cinemas    cinemas      @relation(fields: [cinema_id], references: [id], onDelete: Cascade, map: "fk_movie_cinemas_cinema_id")
+  movie_dt   cinemas_time @relation(fields: [CT_id], references: [id], onDelete: Cascade, map: "fk_movie_cinemas_cinema_time_id")
+  movies     movies       @relation(fields: [movie_id], references: [id], onDelete: Cascade, map: "fk_movie_cinemas_movie_id")
+  Screen     Screens      @relation(fields: [SID], references: [ID], onDelete: Cascade, map: "fk_movie_cinemas_screen_id")
+
+  @@index([cinema_id], map: "fk_movie_cinemas_cinema_id")
+  @@index([movie_id], map: "fk_movie_cinemas_movie_id")
+  @@index([SID], map: "fk_movie_cinemas_screen_id")
+  @@index([CT_id], map: "fk_movie_cinemas_cinema_time_id")
+}
+
+model movie_thumbnails {
+  id        Int     @id @default(autoincrement())
+  movie_id  Int?
+  file_path String? @db.Text
+  movies    movies? @relation(fields: [movie_id], references: [id], onDelete: Cascade, map: "fk_movie_thumbnails_movie_id")
+
+  @@index([movie_id], map: "fk_movie_thumbnails_movie_id")
+}
+
+model movies {
+  id               Int                @id @default(autoincrement())
+  name             String?            @db.Text
+  description      String?            @db.Text
+  writer           String?            @db.Text
+  director         String?            @db.Text
+  duration         String?            @db.Text
+  release_date     DateTime?          @db.DateTime(0)
+  languages        String?            @db.Text
+  price_per_ticket Int?
+  movie_cast       movie_cast[]
+  movie_categories movie_categories[]
+  movie_cinemas    movie_cinemas[]
+  movie_thumbnails movie_thumbnails[]
+  trailers         trailers[]
+}
+
+model trailers {
+  id        Int    @id @default(autoincrement())
+  movie_id  Int
+  file_path String @db.Text
+  movies    movies @relation(fields: [movie_id], references: [id], onDelete: Cascade, map: "fk_trailers_movie_id")
+
+  @@index([movie_id], map: "fk_trailers_movie_id")
+}
+
+model users {
+  userUUID      String          @id @default(uuid())
+  userName      String          @unique @db.VarChar(50)
+  email         String          @unique @db.VarChar(30)
+  password      String          @db.VarChar(255)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  isVerified    Boolean         @default(false)
+  Token         String?         @unique @db.VarChar(500)
+  booking       booking[]
+  review_rating review_rating[]
+}
+
+model moderator {
+  MUUID         String   @id @db.VarChar(255)
+  ModeratorName String   @db.VarChar(50)
+  email         String   @unique @db.VarChar(30)
+  Password      String   @db.VarChar(255)
+  Contact       Int
+  DOB           DateTime @db.Date
+  Address       String   @db.VarChar(150)
+}
+
+model Screens {
+  ID            Int             @id @default(autoincrement())
+  movie_cinemas movie_cinemas[]
+}
+
+model booking {
+  BID          String        @id @default(uuid())
+  userID       String
+  TID          Int
+  MSID         Int
+  TicketID     String        @db.VarChar(255)
+  DT           DateTime      @default(now())
+  seatNo       Int
+  transctionId String        @db.VarChar(255)
+  theatre      cinemas       @relation(fields: [TID], references: [id], map: "fk_booking_cinema_id")
+  movieID      movie_cinemas @relation(fields: [MSID], references: [id], map: "fk_booking_movie_cinema_id")
+  user         users         @relation(fields: [userID], references: [userUUID], map: "fk_booking_user_id")
+  chatbot      chatbot[]
+
+  @@index([userID], map: "fk_booking_user_id")
+  @@index([TID], map: "fk_booking_cinema_id")
+  @@index([MSID], map: "fk_booking_movie_cinema_id")
+}
+
+model chatbot {
+  CBID          String   @id @default(uuid())
+  chatRecord    String   @db.VarChar(255)
+  transactionId String?  @db.VarChar(255)
+  bookingBID    String?
+  booking       booking? @relation(fields: [bookingBID], references: [BID], map: "fk_chatbot_booking_id")
+
+  @@index([bookingBID], map: "fk_chatbot_booking_id")
+}
+
+model review_rating {
+  RRID     String  @id @default(uuid())
+  comments String? @db.VarChar(255)
+  stars    Int?
+  userID   String
+  userR    users   @relation(fields: [userID], references: [userUUID], map: "fk_review_rating_user_id")
+
+  @@index([userID], map: "fk_review_rating_user_id")
+}
+
+model canteen {
+  CID        String  @id
+  TID        Int
+  Name       String  @db.VarChar(50)
+  ImgPath    String  @db.Text
+  price      Int
+  Item       String  @db.VarChar(50)
+  Quantity   Int
+  cinemaFood cinemas @relation(fields: [TID], references: [id], map: "fk_canteen_cinema_id")
+
+  @@index([TID], map: "fk_canteen_cinema_id")
+}

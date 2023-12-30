@@ -1,0 +1,35 @@
+version: '3.9'
+services:
+  server:
+    build:
+      context: ./
+      dockerfile: backend.dockerfile
+    ports:
+      - 8001:8001
+    depends_on:
+      - mysqldb
+        # condition: service_healthy
+    env_file:
+    - ./.env    
+
+  mysqldb:
+    platform: linux/x86_64 
+    build:
+      context: ./mysql/
+      dockerfile: Dockerfile
+    volumes:
+      - db-data:/var/lib/mysql # it will persist the data to host(local) machine
+    restart: unless-stopped
+  
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    env_file:
+    - ./mysql/phpmyadmin.env
+    depends_on:
+      - mysqldb
+        # condition: service_healthy
+    ports:
+      - 82:80
+  
+volumes:
+  db-data: {}

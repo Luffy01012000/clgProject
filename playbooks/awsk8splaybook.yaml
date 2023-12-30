@@ -1,0 +1,18 @@
+---
+- name: This will create k8s with kubeadm
+  hosts: aws_k8s_cluster 
+  # become: true
+  # gather_facts: false
+  tasks:
+    - name: Copy shell script form local to remote
+      ansible.builtin.copy:
+        src: ./kubeadm.sh
+        dest: /home/ubuntu/
+        owner: ubuntu
+        group: ubuntu
+        # mode: '0644' # 6- read& write, 4- readonly for u-g-o
+        mode: u+rwx,g+rwx,o-rwx
+
+    - name: Run shell script
+      become: true
+      command: bash /home/ubuntu/kubeadm.sh

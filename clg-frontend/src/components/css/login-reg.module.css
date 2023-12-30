@@ -1,0 +1,15 @@
+@media screen and (max-width : 800px){
+    .formParent{
+        width: 50vw;
+        min-width: 300px;
+        overflow: hidden;
+    }
+    .formContainer{
+        width: 100%;
+        grid-template-columns: repeat(auto-fit,2, 100%);
+    }
+    .signUpImg,
+    .signInImg{
+        display: none;
+    }
+}

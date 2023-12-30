@@ -1,0 +1,8 @@
+version: '3.9'
+services:
+  prometheusServer:
+    image: prom/prometheus
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prometheus-config.yaml:/etc/prometheus/prometheus.yml

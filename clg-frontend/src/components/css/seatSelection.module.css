@@ -1,0 +1,4 @@
+.selectedSeat {
+    background-color: red; /* Change this to the color you want for selected seats */
+    color: white; /* Change this to the text color for selected seats */
+  }

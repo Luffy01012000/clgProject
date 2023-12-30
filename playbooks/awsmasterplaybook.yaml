@@ -1,0 +1,42 @@
+---
+-
+  name: Setting up k8s cluster master
+  hosts: aws_master
+  become: true
+  tasks:
+    - name: Copy shell script form local to remote 
+      ansible.builtin.copy:
+        src: ./master1.sh
+        dest: /home/ubuntu/
+        owner: ubuntu
+        group: ubuntu
+        # mode: '0644' # 6- read& write, 4- readonly for u-g-o 
+        mode: u+rwx,g+rwx,o-rwx 
+    
+    - name: Copy weave cni file form local to remote 
+      ansible.builtin.copy:
+        src: ./cni/weave-daemonset-k8s.yaml
+        dest: /home/ubuntu
+        owner: ubuntu
+        group: ubuntu
+        # mode: '0644' # 6- read& write, 4- readonly for u-g-o 
+        mode: u+rwx,g+rwx,o-rwx 
+
+    # Don't forget to comment out in master1.sh when running this
+    - name: Copy weave cni file form local to remote 
+      ansible.builtin.copy:
+        src: ./cni/metric.yaml
+        dest: /home/ubuntu
+        owner: ubuntu
+        group: ubuntu
+        # mode: '0644' # 6- read& write, 4- readonly for u-g-o 
+        mode: u+rwx,g+rwx,o-rwx 
+    
+    - name: Run script
+      command: bash /home/ubuntu/awsmaster1.sh
+    
+    - name: fetch join token file
+      ansible.builtin.fetch:
+        src: ~/join-command.sh
+        dest: ./tmp/join-command.sh
+        flat: yes

@@ -1,0 +1,102 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nodejsapp
+  template:
+    metadata:
+      labels:
+        app: nodejsapp
+        role: rolling-update
+    spec:
+      containers:
+        - name: nodejsapp
+          image: gokud/clg-backend-server:v2 # image: "clg-backend-mysqldb"
+          # imagePullPolicy: Never
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          ports:
+            - containerPort: 8001
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8001
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            successThreshold: 1
+# this volume mount is not required, but demonstrates that the secret can be mounted both as an env var and as a file
+          volumeMounts:
+            - name: backend
+              mountPath: /opt # Inside pod
+            - name: db-connection
+              mountPath: /mnt/vc # Inside pod
+          env:
+            - name: PORT
+            #   value: "8001"
+              valueFrom:
+                configMapKeyRef:
+                  name: env-port
+                  key: PORT
+            - name: DATABASE_URL
+              # value: mysql://root:secret@mysqldb:3306/clg
+              valueFrom:
+                # configMapKeyRef:
+                secretKeyRef:
+                  name: database-url
+                  key: database-url
+            - name: ACCESS_TOKEN_EXPIRY
+              value: "1d"
+            - name: ACCESS_TOKEN_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: access-token-secret
+                  key: access-token-secret
+            - name: STRIPE_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: stripe-secret-key
+                  key: stripe-secret-key
+            - name: MAILTRAP_USER
+              valueFrom:
+                secretKeyRef:
+                  name: mailtrap-credentails
+                  key: mailtrap-user
+            - name: MAILTRAP_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: mailtrap-credentails
+                  key: mailtrap-pass
+            - name: API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: api-key
+                  key: .secret-file
+            - name: GOOGLE_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: google-client-id
+                  key: .secret-file
+            - name: GOOGLE_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: google-client-secret
+                  key: .secret-file
+# Need to read data using fs module 
+      volumes:
+        - name: db-connection
+          secret:
+            secretName: database-url
+        - name: backend
+          configMap:
+            name: env-port
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 50%
+      maxUnavailable: 50%

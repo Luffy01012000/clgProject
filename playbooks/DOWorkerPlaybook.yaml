@@ -1,0 +1,17 @@
+---
+-
+  name: demo
+  hosts: DOcean_workers
+  become: true
+  tasks:
+    - name: Copy shell script form local to remote 
+      ansible.builtin.copy:
+        src: ./tmp/join-command.sh
+        dest: /root
+        owner: root
+        group: root
+        # mode: '0644' # 6- read& write, 4- readonly for u-g-o 
+        mode: u+rwx,g+rwx,o-rwx 
+    - name: Run script
+      command: sudo bash /root/join-command.sh
+    

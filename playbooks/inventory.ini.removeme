@@ -1,0 +1,60 @@
+; [all]
+; ips
+; [prod]
+; 68.183.84.32
+; [dev]
+; 64.227.149.146
+
+; IP mapping
+[DOcean_k8s_cluster]
+master-1 ansible_host=
+worker-1 ansible_host=
+worker-2 ansible_host=
+
+[aws_k8s_cluster]
+master ansible_host=
+worker1 ansible_host=
+; worker2 ansible_host=
+
+[DOcean_master]
+
+[DOcean_workers]
+
+
+[aws_master]
+
+
+[aws_workers]
+
+
+; variables
+[DOcean_k8s_cluster:vars]
+; ansible_python_interpreter=/usr/bin/python3
+; ansible_user=root
+ansible_ssh_private_key_file= 
+
+[DOcean_master:vars]
+; ansible_user=root
+ansible_ssh_private_key_file= 
+
+[aws_k8s_cluster:vars]
+ansible_user=ubuntu
+ansible_ssh_private_key_file= 
+
+[aws_master:vars]
+ansible_user=ubuntu
+ansible_ssh_private_key_file= 
+
+[aws_workers:vars]
+ansible_user=ubuntu
+ansible_ssh_private_key_file= 
+
+[DOcean_workers:vars]
+; ansible_python_interpreter=/usr/bin/python3
+; ansible_user=root
+ansible_ssh_private_key_file=
+
+[all:vars]
+ansible_python_interpreter=/usr/bin/python3
+ansible_user=root
+; ansible_ssh_private_key_file=<file>

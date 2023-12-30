@@ -1,0 +1,11 @@
+Dockerfile
+.dockerignore
+node_modules/
+.gitignore
+.git
+.next/
+.vscode
+*.md
+.env
+dist/
+build/
