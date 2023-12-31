@@ -11,7 +11,7 @@ mysql
 .next
 .vscode
 *.md
-# .env
+.env
 dist
 build
 

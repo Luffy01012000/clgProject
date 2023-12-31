@@ -1,6 +1,6 @@
 # FROM node:20-slim AS base
 FROM node:20-alpine AS base
-RUN apk add --no-cache libc6-compat
+RUN apk add --no-cache libc6-compat python3
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
@@ -8,13 +8,15 @@ RUN corepack enable
 FROM base AS builder
 COPY . /usr/src/app
 WORKDIR /usr/src/app
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+# RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install 
 
 # RUN npx prisma generate
 RUN pnpm prisma generate --schema=./src/prisma/schema.prisma
 
 # RUN pnpm run -r build
-RUN pnpm run  build
+RUN pnpm run buildpnpm
+
 RUN pnpm deploy --filter=app1 --prod /prod/app1
 # RUN pnpm deploy --filter=app2 --prod /prod/app2
 
@@ -26,7 +28,7 @@ ENV NODE_ENV=production
 
 RUN addgroup --system --gid 1001 app 
 
-RUN adduser --system --uid 1001 node
+# RUN adduser --system --uid 1001 node
 
 COPY --from=builder --chown=node:app /usr/src/app/build /prod/app1
 
@@ -36,16 +38,18 @@ COPY --from=builder --chown=node:app /usr/src/app/node_modules /prod/app1/node_m
 
 COPY --from=builder --chown=node:app /usr/src/app/package*.json /prod/app1
 
-# COPY --from=builder --chown=node:app /usr/src/app/pnpm-lock.yaml /prod/app1
+# COPY --chown=node:app pnpm-lock.yaml /prod/app1
 
 # Remove or comment out on production
-COPY --from=builder --chown=node:app /usr/src/app/.env /prod/app1
+# COPY --from=builder --chown=node:app /usr/src/app/.env /prod/app1
 
 # RUN apt-get update && apt-get install -y openssl 
 
 WORKDIR /prod/app1
 
 RUN pnpm add -g pm2@latest
+
+USER node
 
 EXPOSE 8001
 
