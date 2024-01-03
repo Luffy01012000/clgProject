@@ -2,7 +2,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: clgFrontend
+  name: clg-frontend-deployment
   namespace: frontend
 spec:
   replicas: 2
@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: myfrontendapp
-        image: clg-frontend:v40
+        image: gokud/clg-frontend:v40
         resources:
           limits:
             memory: "128Mi"
@@ -26,7 +26,7 @@ spec:
         - containerPort: 3000
         readinessProbe:
             httpGet:
-              path: /
+              path: /home
               port: 3000
             initialDelaySeconds: 5
             periodSeconds: 5
@@ -35,17 +35,17 @@ spec:
           - name: API_KEY
             valueFrom:
                 secretKeyRef:
-                  name: Google 
+                  name: google 
                   key: API_KEY
           - name: GOOGLE_CLIENT_ID
             valueFrom:
                 secretKeyRef:
-                  name: Google 
+                  name: google 
                   key: GOOGLE_CLIENT_ID
           - name: GOOGLE_CLIENT_SECRET
             valueFrom:
                 secretKeyRef:
-                  name: Google 
+                  name:  google
                   key: GOOGLE_CLIENT_SECRET
           - name: AGENT_ID
             valueFrom:

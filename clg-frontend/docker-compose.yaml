@@ -1,0 +1,14 @@
+---
+version: '3.9'
+services:
+  server:
+    image: gokud/clg-frontend:v40
+    ports:
+      - 3010:3001
+    environment:
+      - PORT=3001
+      # - HOSTNAME=localost
+    env_file:
+    - ./.env    
+
+  
