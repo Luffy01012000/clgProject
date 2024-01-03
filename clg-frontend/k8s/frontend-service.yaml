@@ -2,10 +2,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: myapp
+  name: frontend-service
+  namespace: frontend
 spec:
   selector:
-    app: myapp
+    app: clgFrontend
+    role: rolling-update
+  type: NodePort
   ports:
-  - port: <Port>
-    targetPort: <Target Port>
+  - port: 3000
+    targetPort: 3000
+    protocol: TCP
+    nodePort: 30003
