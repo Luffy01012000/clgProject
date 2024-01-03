@@ -2,6 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: backend-service
+  namespace: backend
 spec:
   selector:
     app: nodejsapp
@@ -12,5 +13,5 @@ spec:
   - port: 8000
     protocol: TCP
     targetPort: 8001
-    # nodePort: 30002
+    nodePort: 30002
     

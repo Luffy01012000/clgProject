@@ -2,7 +2,7 @@
 # kind: ConfigMap
 # metadata:
 #   name: database-url
-#   namespace: default
+#   namespace: backend
 # data:
 #   database-url: mysql://root:secret@mysqldb:3306/clg
 ---
@@ -10,6 +10,6 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: env-port
-  namespace: default
+  namespace: backend
 data:
   PORT: "8001"
