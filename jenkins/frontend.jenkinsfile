@@ -78,7 +78,8 @@ pipeline {
         }
         stage('Docker PUSH') {
             steps {
-                withDockerRegistry(credentialsId: 'dockerhub', url: 'https://hub.docker.com/repositories/gokud') {
+               script {
+                    withDockerRegistry(toolName: 'docker', credentialsId: 'Docker_hub') {
                     sh '''
                     docker push gokud/clg-frontend:v${BUILD_NUMBER}
                 '''
