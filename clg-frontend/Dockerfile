@@ -1,6 +1,7 @@
 FROM node:20-alpine AS base
 RUN apk add --no-cache libc6-compat
-ENV PNPM_HOME="/pnpm"
+# use below lines when using pnpm to allow image to find pnpm path
+ENV PNPM_HOME="/pnpm" 
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
 
@@ -72,7 +73,8 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 # RUN yarn global add pnpm@latest
 # RUN yarn global add pm2
 
-RUN pnpm i -g pm2 #unable to find global bin 
+# RUN pnpm i -g pm2 #unable to find global bin 
+RUN pnpm add -g pm2@latest
 
 USER nextjs
 
