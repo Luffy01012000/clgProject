@@ -1,0 +1,31 @@
+.mouse{
+    position: absolute;
+    width: 1.625rem;
+    height: 1.625rem;
+    border-radius: 50%;
+    background: #ffeb77;
+    box-shadow: 0 0 15px 5px #ffeb77;
+    z-index: 19; 
+}
+
+.cursorBlur {
+    z-index: 19;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    /* width: 1.625rem; */
+    /* height: 1.625rem; */
+    /* border-radius: 50%; */
+    /* background: #ffeb77; */
+    /* box-shadow: 0 0 15px 5px #ffeb77; */
+    /* pointer-events: none; */
+    height: 400px;
+    width: 400px;
+    background-color: rgba(167, 165, 165, 0.178);
+    border-radius: 50%;
+    /* position: fixed; */
+    filter: blur(50px);
+    z-index: 9;
+  }
