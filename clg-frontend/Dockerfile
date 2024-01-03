@@ -65,7 +65,9 @@ RUN chown nextjs:nodejs .next
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-RUN yarn global add pm2
+# RUN yarn global add pm2
+
+RUN pnpm i -g pm2
 
 USER nextjs
 
