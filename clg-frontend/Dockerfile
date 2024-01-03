@@ -67,9 +67,9 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 RUN yarn global add pnpm@latest
 
-USER nextjs
-
 RUN pnpm i -g pm2
+
+USER nextjs
 
 EXPOSE 3000
 
