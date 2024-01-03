@@ -3,7 +3,7 @@ RUN apk add --no-cache libc6-compat
 # use below lines when using pnpm to allow image to find pnpm path
 ENV PNPM_HOME="/pnpm" 
 ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable
+RUN corepack enable #set up the symlinks in your environment next to the node binary
 
 # Install dependencies only when needed
 FROM base AS deps
