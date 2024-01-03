@@ -1,9 +1,13 @@
 FROM node:20-alpine AS base
+RUN apk add --no-cache libc6-compat
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
 
 # Install dependencies only when needed
 FROM base AS deps
 # Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
-RUN apk add --no-cache libc6-compat
+
 WORKDIR /app
 
 # Install dependencies based on the preferred package manager
@@ -40,7 +44,7 @@ COPY . .
 # If using npm comment out above and use below instead
 # RUN npm install -g npm@10.2.5
 # RUN npm run build
-RUN yarn global add pnpm@latest
+# RUN yarn global add pnpm@latest
 RUN pnpm run build
 
 # Production image, copy all the files and run next
@@ -66,9 +70,9 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 # RUN yarn global add pnpm@latest
-RUN yarn global add pm2
+# RUN yarn global add pm2
 
-# RUN pnpm i -g pm2 #unable to find global bin 
+RUN pnpm i -g pm2 #unable to find global bin 
 
 USER nextjs
 
