@@ -1,0 +1,110 @@
+pipeline {
+    agent any
+
+    tools {
+        jdk 'jdk17'
+        nodejs 'nodejs'
+    }
+    environment {
+        SCANNER_HOME = tool 'sonar-scanner'
+    }
+    stages {
+        stage('Git') {
+            steps {
+                git branch: 'dev', url: 'https://github.com/Luffy01012000/clgProject'
+                sh '''
+                pwd
+                ls -a'''
+            }
+        }
+
+        stage('pnpm install') {
+            steps {
+                sh '''
+                cd clg-frontend
+                pnpm i --frozen-lockfile
+                ls -a
+                '''
+            }
+        }
+
+        stage('owasp fs scan') {
+            steps {
+                dependencyCheck additionalArguments: '--scan clg-frontend/ --disableYarnAudit --disableNodeAudit', odcInstallation : 'owasp'
+                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+            }
+        }
+
+        stage('Files scan') {
+            steps {
+                sh '''
+                trivy fs clg-frontend > ScannedFiles.txt
+                cat ScannedFiles.txt
+                '''
+            }
+        }
+
+        stage('sonarScanner') {
+            steps {
+                withSonarQubeEnv(installationName: 'sonar-scanner', credentialsId: 'sonarAnalysis') {
+                    nodejs('nodejs') {
+                        sh '''$SCANNER_HOME/bin/sonar-scanner \
+                         -Dsonar.projectKey=clgProject \
+                          -Dsonar.sources=clg-frontend \
+                          -Dsonar.host.url=http://192.168.139.226:90 \
+                          -Dsonar.login=sqp_498bfc4e5a378d847208f4af6ef88641bbf52a25'''
+                    }
+                }
+            }
+        }
+
+        stage('frontend') {
+            steps {
+                sh '''
+                cd clg-frontend
+                docker build -t gokud/clg-frontend:v${BUILD_NUMBER} .
+                docker images
+                '''
+            }
+        }
+
+        stage('Image scan') {
+            steps {
+                sh '''
+                trivy image gokud/clg-frontend:v${BUILD_NUMBER} > ScannedImage.txt
+                cat ScannedImage.txt
+                '''
+            }
+        }
+        stage('Docker PUSH') {
+            steps {
+                script {
+                    withDockerRegistry(toolName: 'docker', credentialsId: 'Docker_hub') {
+                            sh '''
+                            docker push gokud/clg-frontend:v${BUILD_NUMBER}
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Update deployment') {
+            environment {
+                GIT_REPO_NAME = 'clgProject'
+                GIT_USER_NAME = 'Luffy01012000'
+            }
+            steps {
+                withCredentials([string(credentialsId: 'githubToken', variable: 'githubToken')]) {
+                    sh '''
+                git config user.email "goku05555@gmail.com"
+                git config user.name "Luffy01012000"
+                sed -i "s/clg-frontend:v40/clg-frontend:v${BUILD_NUMBER}/g" clg-frontend/k8s/frontend-deployment.yaml
+                git add clg-frontend/k8s/frontend-deployment.yaml
+                git commit -m "updated deployment image to version ${BUILD_NUMBER}"
+                git push https://${githubToken}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:dev
+                '''
+                }
+            }
+        }
+    }
+}

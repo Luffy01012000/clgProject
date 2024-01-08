@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: backend-deployment
+  namespace: backend
 spec:
   replicas: 3
   selector:
@@ -31,11 +32,11 @@ spec:
             periodSeconds: 5
             successThreshold: 1
 # this volume mount is not required, but demonstrates that the secret can be mounted both as an env var and as a file
-          volumeMounts:
-            - name: backend
-              mountPath: /opt # Inside pod
-            - name: db-connection
-              mountPath: /mnt/vc # Inside pod
+          # volumeMounts:
+          #   - name: backend
+          #     mountPath: /opt # Inside pod
+          #   - name: db-connection
+          #     mountPath: /mnt/vc # Inside pod
           env:
             - name: PORT
             #   value: "8001"
@@ -88,13 +89,13 @@ spec:
                   name: google-client-secret
                   key: .secret-file
 # Need to read data using fs module 
-      volumes:
-        - name: db-connection
-          secret:
-            secretName: database-url
-        - name: backend
-          configMap:
-            name: env-port
+      # volumes:
+      #   - name: db-connection
+      #     secret:
+      #       secretName: database-url
+      #   - name: backend
+      #     configMap:
+      #       name: env-port
   strategy:
     type: RollingUpdate
     rollingUpdate:

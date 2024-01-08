@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {} from "react-icons/";
-import styleMouse from "@/../public/css/mouse.module.css";
+import styleMouse from "@/components/css/mouse.module.css";
 import useMousePosition from "@/utils/useMousePosition";
 import { AnimatePresence, motion } from "framer-motion";
 import { CgProfile } from "react-icons/cg";

@@ -1,17 +1,31 @@
 FROM node:20-alpine AS base
+RUN apk add --no-cache libc6-compat
+# use below lines when using pnpm to allow image to find pnpm path
+ENV PNPM_HOME="/pnpm" 
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable #set up the symlinks in your environment next to the node binary
 
 # Install dependencies only when needed
 FROM base AS deps
 # Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
-RUN apk add --no-cache libc6-compat
+
 WORKDIR /app
 
 # Install dependencies based on the preferred package manager
 COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
+
+# RUN \
+#   if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
+#   elif [ -f package-lock.json ]; then npm ci; \
+#   elif [ -f pnpm-lock.yaml ]; then npm i pnpm -g && pnpm i --frozen-lockfile; \
+#   else echo "Lockfile not found." && exit 1; \
+#   fi
+
 RUN \
   if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
   elif [ -f package-lock.json ]; then npm ci; \
-  elif [ -f pnpm-lock.yaml ]; then yarn global add pnpm && pnpm i --frozen-lockfile; \
+  elif [ -f pnpm-lock.yaml ]; then pnpm i --frozen-lockfile; \
+  # elif [ -f pnpm-lock.yaml ]; then yarn global add pnpm && pnpm i --frozen-lockfile; \
   else echo "Lockfile not found." && exit 1; \
   fi
 
@@ -32,6 +46,7 @@ COPY . .
 # If using npm comment out above and use below instead
 # RUN npm install -g npm@10.2.5
 # RUN npm run build
+# RUN yarn global add pnpm@latest
 RUN pnpm run build
 
 # Production image, copy all the files and run next
@@ -56,9 +71,13 @@ RUN chown nextjs:nodejs .next
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-USER nextjs
+# RUN yarn global add pnpm@latest
+# RUN yarn global add pm2
 
-RUN pnpm i -g pm2
+# RUN pnpm i -g pm2 #unable to find global bin 
+RUN pnpm add -g pm2@latest
+
+USER nextjs
 
 EXPOSE 3000
 
